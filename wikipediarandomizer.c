@@ -5,6 +5,7 @@
 #include <linux/hw_breakpoint.h>
 #include <sys/syscall.h>
 #include <unistd.h>
+#include <string.h>
 
 
 #define CACHE_LINE_SIZE 64
@@ -69,18 +70,32 @@ static long perf_event_open(struct perf_event_attr *hw_event, pid_t pid, int cpu
    ret = syscall(SYS_perf_event_open, hw_event, pid, cpu, group_fd, flags);
    return ret;
 }
+
+void perfStructInitializer(struct perf_event_attr *performanceMonitorStruct)
+{
+   memset(performanceMonitorStruct, 0, sizeof(&performanceMonitorStruct));
+   performanceMonitorStruct->type = 0;
+   performanceMonitorStruct->disabled = 0;
+   performanceMonitorStruct->size = sizeof(performanceMonitorStruct);
+   performanceMonitorStruct->config = PERF_COUNT_HW_CACHE_MISSES;
+   performanceMonitorStruct->disabled = 1;
+   performanceMonitorStruct->exclude_kernel = 1;
+   performanceMonitorStruct->exclude_hv = 1;
+   
+}
 int main ()
 {
 
    struct perf_event_attr performanceMonitorStruct;
+   perfStructInitializer(&performanceMonitorStruct);
 
-   performanceMonitorStruct.type = 0;
-   performanceMonitorStruct.disabled = 0;
 
 
    int sizeOfArray = 125000;
    char accessArray[sizeOfArray];
 
    do_mem_access(accessArray, sizeOfArray);
+
+
 }
 
